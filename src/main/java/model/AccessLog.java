@@ -13,6 +13,7 @@ public class AccessLog {
     private static final Logger logger = Logger.getLogger("Access");
 
     private static final String LOG_ENTRY_PATTERN =
+            // 1:IP  2:client 3:user 4:date time                   5:method 6:req 7:proto   8:respcode 9:size
             "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\S+)";
     private static final Pattern PATTERN = Pattern.compile(LOG_ENTRY_PATTERN);
 
@@ -141,5 +142,12 @@ public class AccessLog {
 
     public void setContentSize(long contentSize) {
         this.contentSize = contentSize;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s %s [%s] \"%s %s %s\" %s %s",
+                ipAddress, clientId, userID, dateTimeString, method, endpoint,
+                protocol, responseCode, contentSize);
     }
 }

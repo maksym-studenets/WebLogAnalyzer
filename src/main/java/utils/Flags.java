@@ -1,3 +1,6 @@
+package utils;
+
+import main.LogAnalyzerApp;
 import org.apache.commons.cli.*;
 import org.apache.spark.streaming.Duration;
 
@@ -25,7 +28,7 @@ public class Flags {
 
     public static Flags getInstance() {
         if (!INSTANCE.initialized) {
-            throw new RuntimeException("Flags have not been initialized");
+            throw new RuntimeException("utils.Flags have not been initialized");
         }
         return INSTANCE;
     }
