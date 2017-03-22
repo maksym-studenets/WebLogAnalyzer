@@ -1,6 +1,7 @@
 package model;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -9,7 +10,7 @@ import java.util.regex.Pattern;
 /**
  * Created by maksym on 10.03.17.
  */
-public class AccessLog {
+public class AccessLog implements Serializable {
     private static final Logger logger = Logger.getLogger("Access");
 
     private static final String LOG_ENTRY_PATTERN =

@@ -58,7 +58,20 @@ public class Flags {
         try {
             CommandLine commandLine = parser.parse(options, args);
             INSTANCE.isHelp = commandLine.hasOption(LogAnalyzerApp.HELP);
+            INSTANCE.windowLength = new Duration(Integer.parseInt(
+                    commandLine.getOptionValue(LogAnalyzerApp.WINDOW_LENGTH, "30")) * 1000);
+            INSTANCE.slideInterval = new Duration(Integer.parseInt(
+                    commandLine.getOptionValue(LogAnalyzerApp.SLIDE_INTERVAL, "5")) * 1000);
+            INSTANCE.logsDirectory = commandLine.getOptionValue(
+                    LogAnalyzerApp.LOGS_DIRECTORY, "/tmp/logs");
+            INSTANCE.outputHtmlFile = commandLine.getOptionValue(
+                    LogAnalyzerApp.OUTPUT_HTML, "/output/log_stats.html");
+            INSTANCE.checkpointDirectory = commandLine.getOptionValue(
+                    LogAnalyzerApp.CHECKPOINT_DIR, "/tmp/webloganalyzer-streaming");
+            INSTANCE.initialized = true;
         } catch (ParseException e) {
+            INSTANCE.initialized = false;
+            System.err.println("Parsing failed. Error code: " + e.getMessage());
             e.printStackTrace();
         }
     }
