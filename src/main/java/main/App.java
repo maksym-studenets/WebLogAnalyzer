@@ -15,10 +15,9 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * Created by maksym on 10.03.17.
+ * Created by Maksym on 24.03.2017.
  */
-public class LogAnalyzerApp {
-
+public class App {
     public static final String HELP = "h";
     public static final String WINDOW_LENGTH = "w";
     public static final String SLIDE_INTERVAL = "s";
