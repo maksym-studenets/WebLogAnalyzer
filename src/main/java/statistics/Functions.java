@@ -1,4 +1,4 @@
-package utils;
+package statistics;
 
 import model.AccessLog;
 import org.apache.spark.api.java.JavaPairRDD;

@@ -2,74 +2,77 @@ package main;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
+import model.StatusData;
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.Function2;
-import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import utils.Flags;
+import scala.Tuple2;
+import statistics.LogInsights;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by Maksym on 24.03.2017.
+ * Main class for the Web Log Analyzer project
  */
-public class App {
-    public static final String HELP = "h";
-    public static final String WINDOW_LENGTH = "w";
-    public static final String SLIDE_INTERVAL = "s";
-    public static final String LOGS_DIRECTORY = "l";
-    public static final String OUTPUT_HTML = "o";
-    public static final String CHECKPOINT_DIR = "c";
 
-    private static final Options OPTIONS = createOptions();
+/* TODO: ENABLE JAVAFX INTEGRATION WITH GRADLE. COMMENTED BELOW
+ */
+
+public class App  /* extends Application */ {
+    private static JavaSparkContext javaSparkContext;
+    private static final String LOG_PATH = "D:\\Progs\\JAVA\\2017\\2\\webloganalyzer" +
+            "\\src\\main\\resources\\rkc.log";
+
+    /*
+    * @Override
+    * Parent root = FXMLLoader.load(getClass().getResource("fxml/MainForm.fxml"));
+        primaryStage.setTitle("Hello World");
+        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.show();
+    * */
+
 
     public static void main(String[] args) {
-        String logFile = readLog();
+        //launch(args);
 
-        SparkConf conf = new SparkConf().setAppName("Web Log Analyzer")
-                .setMaster("local[2]");
-        JavaSparkContext javaSparkContext = new JavaSparkContext(conf);
-        JavaStreamingContext javaStreamingContext = new JavaStreamingContext(javaSparkContext,
-                Flags.getInstance().getSlideInterval());
+        javaSparkContext = initializeSpark();
+        LogInsights insights = new LogInsights();
+        insights.setLogLines(javaSparkContext.textFile(LOG_PATH));
+        List<String> ipAddressData = insights.getIpStats(50);
+        insights.getIpStats(30);
 
-        JavaRDD<String> logLines = javaSparkContext.textFile(logFile);
-        System.out.println("Log lines: ");
-        System.out.println(logLines);
+        System.out.println("More than 20 times: " + ipAddressData);
 
-        javaStreamingContext.checkpoint(Flags.getInstance().getCheckpointDirectory());
+        /*
+        TreeMap<String, IpAddressGeoData> ipGeoData = insights.getIpGeoData();
+        for (Map.Entry<String, IpAddressGeoData> ipAddress : ipGeoData.entrySet()) {
+            System.out.println("IP: " + ipAddress.getValue().getIp() +
+                    "; Geographical data: " + ipAddress.getValue().getCity() + ", " +
+                    ipAddress.getValue().getCountryName());
+        }
+        */
 
+        System.out.println("Traffic statistics: " + insights.getTrafficStatistics());
+        List<Tuple2<Integer, Long>> statusCodes = insights.getStatusCodeStatistics();
+        List<StatusData> responseCodeData = new ArrayList<>();
+
+        for (Tuple2<Integer, Long> element : statusCodes) {
+            responseCodeData.add(new StatusData(element._1(), element._2()));
+        }
+
+        for (StatusData entry : responseCodeData) {
+            System.out.println("Response code: " + entry.getStatusCode() + "\t count: " + entry.getCount());
+        }
 
         javaSparkContext.stop();
-
-    }
-
-    private static Options createOptions() {
-        Options options = new Options();
-        options.addOption(LOGS_DIRECTORY, "logs-dir", true, "Log files directory");
-        options.addOption(OUTPUT_HTML, "output-html", true, "Output statistics directory");
-        options.addOption(WINDOW_LENGTH, "window-length", true, "Length of the window, seconds");
-        options.addOption(SLIDE_INTERVAL, "slide-interval", true, "Slide interval, seconds");
-        options.addOption(CHECKPOINT_DIR, "checkpoint-dir", true, "Spark checkpoints directory");
-        options.addOption(HELP, "help", false, "Print help");
-
-        return options;
-    }
-
-    private static void printAndQuit(int status) {
-        HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp("Web Log Analyzer [args]: ", OPTIONS);
-        System.exit(status);
     }
 
     private static String readLog() {
         try {
-            //URL url = Resources.getResource("rkc.log");
-            URL url = Resources.getResource("log.txt");
-            url.toString();
+            URL url = Resources.getResource("rkc.log");
+            //url.toString();
             return Resources.toString(url, Charsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,5 +80,10 @@ public class App {
         }
     }
 
-    private static Function2<Long, Long, Long> SUM_REDUCER = (a, b) -> a + b;
+    private static JavaSparkContext initializeSpark() {
+        SparkConf sparkConf = new SparkConf()
+                .setAppName("Web Log Analyzer")
+                .setMaster("local[2]");
+        return new JavaSparkContext(sparkConf);
+    }
 }
