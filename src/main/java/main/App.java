@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Main class for the Web Log Analyzer project
@@ -66,7 +67,19 @@ public class App  /* extends Application */ {
             System.out.println("Response code: " + entry.getStatusCode() + "\t count: " + entry.getCount());
         }
 
-        javaSparkContext.stop();
+        /*
+        JavaRDD<AccessLog> accessLogJavaRDD = insights.convertLogToRdd();
+        int clustersCount = 3;
+        int iterationsCount = 15;
+        KMeansModel kMeansModel = KMeans.train()
+        */
+
+        System.out.println("Enter exit to exit: ");
+        Scanner in = new Scanner(System.in);
+        String command = in.next();
+
+        if (command.equals("exit"))
+            javaSparkContext.stop();
     }
 
     private static String readLog() {

@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.TreeMap;
 
 /**
- * Performs basic log insight operationsreated by Maksym on 04.04.2017.
+ * Performs basic log insight operations. Uses for parsing and fetching Apache access log data,
+ * perform clustering
  */
 public class LogInsights {
     private JavaRDD<AccessLog> accessLogs;
@@ -25,13 +26,24 @@ public class LogInsights {
     private List<String> ipAddresses;
 
 
+    /**
+     * Default public constructor with no parameters. Sets references to class's fields to null
+     */
     public LogInsights() {
         accessLogs = null;
         trafficData = null;
         logLines = null;
     }
 
-
+    /**
+     * Retrieves a list of IP addresses that accessed the website with a specified number of times
+     * or more often. Before conducting basic operations, parses log data line by line using
+     * Spark's built-in capabilities
+     *
+     * @param quantity filter for the IP address list. All addresses that occur more often than this value
+     *                 will be added to the list
+     * @return list of IP addresses that occur more than a value passed as a parameter
+     */
     public List<String> getIpStats(int quantity) {
         convertToAccessLog();
         try {
@@ -51,6 +63,14 @@ public class LogInsights {
         }
     }
 
+    /**
+     * Retrieves geographical information for the selected list of IP addresses that occur
+     * in the web log more frequently than in the retrieving method. Sends REST API request
+     * to FreeGeoIp.net service and receives a response. Uses Retrofit library to safely process
+     * HTTP request. {@link GsonConverterFactory} is used to parse the response to the desired
+     * custom type.
+     * @return {@link TreeMap} of IP addresses and appropriate set of geo data
+     * */
     public TreeMap<String, IpAddressGeoData> getIpGeoData() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(IpGeoService.BASE_URL)
@@ -79,6 +99,13 @@ public class LogInsights {
         return ipGeoData;
     }
 
+    /**
+     * Computes traffic data statistics for the complete dataset of web logs.
+     * Basic statistical information includes minimum, average and maximum content size
+     * of each request.
+     * @return new object of {@link TrafficInfo} class that represents computed data. It is
+     * then being used to present in a easy to use form
+     * */
     public TrafficInfo getTrafficStatistics() {
         trafficData = accessLogs.map(AccessLog::getContentSize).cache();
         long average = trafficData.reduce(Functions.sumReducer) / trafficData.count();
@@ -88,12 +115,26 @@ public class LogInsights {
         return new TrafficInfo(average, maximum, minimum);
     }
 
+    /**
+     * Returns list of status code statistics
+     * */
     public List<Tuple2<Integer, Long>> getStatusCodeStatistics() {
         return accessLogs
                 .mapToPair(log -> new Tuple2<>(log.getResponseCode(), 1L))
                 .reduceByKey(Functions.sumReducer)
                 .take(100);
     }
+
+
+    /*
+    public JavaRDD<AccessLog> getTimeDataForIp() {
+        return accessLogs
+                .mapToPair(log -> new Tuple2<>(log.getDate(), 1L))
+                .reduceByKey(Functions.sumReducer)
+                .filter(date -> );
+    }
+    */
+
 
     public JavaRDD<String> getLogLines() {
         return logLines;
@@ -103,6 +144,7 @@ public class LogInsights {
         this.logLines = logLines;
     }
 
+    /***/
     private void convertToAccessLog() {
         accessLogs = logLines.map(AccessLog::parseLog).cache();
     }

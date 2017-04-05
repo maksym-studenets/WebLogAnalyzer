@@ -20,6 +20,7 @@ import java.util.List;
 public class Functions {
     public static final Function2<Long, Long, Long> sumReducer = (a, b) -> a + b;
 
+
     public static Function2<List<Long>, Optional<Long>, Optional<Long>>
             calculateRunningSum = (nums, current) -> {
         long sum = current.or(0L);

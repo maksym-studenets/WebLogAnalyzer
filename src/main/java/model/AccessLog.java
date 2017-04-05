@@ -2,6 +2,10 @@ package model;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -18,6 +22,8 @@ public class AccessLog implements Serializable {
             "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\S+)";
     private static final Pattern PATTERN = Pattern.compile(LOG_ENTRY_PATTERN);
 
+    private SimpleDateFormat dateFormat;
+
     private String ipAddress;
     private String clientId;
     private String userID;
@@ -27,6 +33,8 @@ public class AccessLog implements Serializable {
     private String protocol;
     private int responseCode;
     private long contentSize;
+    private Date date;
+
 
     /** Reads log file line by line and parses it. The result of a parse is a new object of AccessLog class.
      * @param logLine String that encompasses one line of Apache web server log
@@ -52,6 +60,8 @@ public class AccessLog implements Serializable {
     private AccessLog(String ipAddress, String clientId, String userID, String dateTimeString,
                       String method, String endpoint, String protocol,
                       String responseCode, String contentSize) {
+        dateFormat = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss Z", Locale.US);
+
         this.ipAddress = ipAddress;
         this.clientId = clientId;
         this.userID = userID;
@@ -64,6 +74,13 @@ public class AccessLog implements Serializable {
             this.contentSize = 0;
         } else {
             this.contentSize = Long.parseLong(contentSize);
+        }
+
+        try {
+            date = dateFormat.parse(dateTimeString);
+        } catch (ParseException e) {
+            System.out.println("Error parsing date");
+            date = null;
         }
     }
 
@@ -150,5 +167,13 @@ public class AccessLog implements Serializable {
         return String.format("%s %s %s [%s] \"%s %s %s\" %s %s",
                 ipAddress, clientId, userID, dateTimeString, method, endpoint,
                 protocol, responseCode, contentSize);
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }
