@@ -12,7 +12,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by maksym on 10.03.17.
+ * Model class for Apache web server access log entry. Performs log parsing by read a text file
+ * line by line and converting it to entity objects of this class
  */
 public class AccessLog implements Serializable {
     private static final Logger logger = Logger.getLogger("Access");

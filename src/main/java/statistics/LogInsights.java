@@ -4,6 +4,7 @@ import model.AccessLog;
 import model.IpAddressGeoData;
 import model.TrafficInfo;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.Function;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -23,7 +24,7 @@ public class LogInsights {
     private JavaRDD<AccessLog> accessLogs;
     private JavaRDD<Long> trafficData;
     private JavaRDD<String> logLines;
-    private List<String> ipAddresses;
+    private List<String> frequentIpAddresses;
 
 
     /**
@@ -35,6 +36,26 @@ public class LogInsights {
         logLines = null;
     }
 
+    public List<AccessLog> getCleanedData() {
+        return getLogList();
+    }
+
+    public List<String> getDistictIpAddresses() {
+        //convertToAccessLog();
+        try {
+            return accessLogs.mapToPair(log -> new Tuple2<>(log.getIpAddress(), 1L))
+                    .reduceByKey(Functions.sumReducer)
+                    .distinct()
+                    .map(Tuple2::_1)
+                    .take(100);
+        } catch (Exception e) {
+            System.out.println("Something happened....");
+            System.out.println("Stack trace: ");
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * Retrieves a list of IP addresses that accessed the website with a specified number of times
      * or more often. Before conducting basic operations, parses log data line by line using
@@ -44,17 +65,17 @@ public class LogInsights {
      *                 will be added to the list
      * @return list of IP addresses that occur more than a value passed as a parameter
      */
-    public List<String> getIpStats(int quantity) {
-        convertToAccessLog();
+    public List<String> getFrequentIpStatistics(int quantity) {
+        //convertToAccessLog();
         try {
-            ipAddresses =
+            frequentIpAddresses =
                     accessLogs.mapToPair(log -> new Tuple2<>(log.getIpAddress(), 1L))
                             .reduceByKey(Functions.sumReducer)
                             .filter(tuple -> tuple._2() > quantity)
                             .map(Tuple2::_1)
                             .take(100);
-            //System.out.println(String.format("IPAddresses > " + quantity + "times: %s", ipAddresses));
-            return ipAddresses;
+            //System.out.println(String.format("IPAddresses > " + quantity + "times: %s", frequentIpAddresses));
+            return frequentIpAddresses;
         } catch (Exception e) {
             System.out.println("Something happened....");
             System.out.println("Stack trace: ");
@@ -80,7 +101,7 @@ public class LogInsights {
 
         final TreeMap<String, IpAddressGeoData> ipGeoData = new TreeMap<>();
 
-        for (String ipAddress : ipAddresses) {
+        for (String ipAddress : frequentIpAddresses) {
             ipGeoService.getIpAddressGeoData(ipAddress).enqueue(
                     new Callback<IpAddressGeoData>() {
                         @Override
@@ -108,6 +129,7 @@ public class LogInsights {
      * */
     public TrafficInfo getTrafficStatistics() {
         trafficData = accessLogs.map(AccessLog::getContentSize).cache();
+        trafficData.filter((Function<Long, Boolean>) v1 -> v1 > 0);
         long average = trafficData.reduce(Functions.sumReducer) / trafficData.count();
         long maximum = trafficData.max(Comparator.naturalOrder());
         long minimum = trafficData.min(Comparator.naturalOrder());
@@ -136,12 +158,13 @@ public class LogInsights {
     */
 
 
-    public JavaRDD<String> getLogLines() {
-        return logLines;
-    }
-
     public void setLogLines(JavaRDD<String> logLines) {
         this.logLines = logLines;
+        convertToAccessLog();
+    }
+
+    private List<AccessLog> getLogList() {
+        return accessLogs.collect();
     }
 
     /***/
