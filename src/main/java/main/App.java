@@ -3,16 +3,17 @@ package main;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import model.AccessLog;
+import model.IpAddressGeoData;
+import model.StatusData;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
+import scala.Tuple2;
 import statistics.Clusters;
 import statistics.LogInsights;
-import statistics.SimilarityVector;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Main class for the Web Log Analyzer project
@@ -23,7 +24,7 @@ import java.util.Scanner;
 
 public class App {
     private static final String LOG_PATH = "D:\\Progs\\JAVA\\2017\\2\\webloganalyzer" +
-            "\\src\\main\\resources\\rkc.log";
+            "\\src\\main\\resources\\rkc-2.log";
     private static JavaSparkContext javaSparkContext;
 
     public static void main(String[] args) {
@@ -37,23 +38,14 @@ public class App {
 
         cleanData.removeIf(log -> log.getResponseCode() != 200 && log.getContentSize() == 0);
 
-        /*
-        while (logIterator.hasNext()) {
-            AccessLog log = logIterator.next();
-            if (log.getResponseCode() != 200 && log.getContentSize() == 0) {
-                logIterator.remove();
-            }
-        } */
 
         System.out.println("Size of cleaned data set: " + cleanData.size());
 
         Clusters clusters = new Clusters(cleanData);
-        ArrayList<SimilarityVector> similarityVector = clusters.calculateSimilarityVector();
-        for (SimilarityVector vector : similarityVector) {
-            System.out.println(vector);
-        }
+        clusters.calculateSimilarityVector();
+        clusters.clusterKMeans(5);
 
-        /*
+
         List<String> uniqueIps = insights.getDistictIpAddresses();
         System.out.println("Unique IPs: " + uniqueIps);
 
@@ -80,7 +72,6 @@ public class App {
         for (StatusData entry : responseCodeData) {
             System.out.println("Response code: " + entry.getStatusCode() + "\t count: " + entry.getCount());
         }
-        */
 
 
         System.out.println("Enter exit to exit: ");
@@ -102,7 +93,7 @@ public class App {
      */
     private static String readLog() {
         try {
-            URL url = Resources.getResource("rkc.log");
+            URL url = Resources.getResource("rkc-2.log");
             //url.toString();
             return Resources.toString(url, Charsets.UTF_8);
         } catch (IOException e) {

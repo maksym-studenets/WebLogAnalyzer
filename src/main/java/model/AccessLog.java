@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +20,7 @@ public class AccessLog implements Serializable {
     private static final Logger logger = Logger.getLogger("Access");
 
     private static final String LOG_ENTRY_PATTERN =
-            // 1:IP  2:client 3:user 4:date time                   5:method 6:req 7:proto   8:respcode 9:size
+            // 1:IP  2:client 3:user 4:mDate time                   5:method 6:req 7:proto   8:respcode 9:size
             "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\S+)";
     private static final Pattern PATTERN = Pattern.compile(LOG_ENTRY_PATTERN);
 
@@ -34,7 +35,8 @@ public class AccessLog implements Serializable {
     private String protocol;
     private int responseCode;
     private long contentSize;
-    private Date date;
+    private GregorianCalendar date = new GregorianCalendar();
+    private Date mDate;
 
 
     /** Reads log file line by line and parses it. The result of a parse is a new object of AccessLog class.
@@ -78,10 +80,11 @@ public class AccessLog implements Serializable {
         }
 
         try {
-            date = dateFormat.parse(dateTimeString);
+            mDate = dateFormat.parse(dateTimeString);
+            date.setTime(mDate);
         } catch (ParseException e) {
-            System.out.println("Error parsing date");
-            date = null;
+            System.out.println("Error parsing mDate");
+            mDate = null;
         }
     }
 
@@ -170,11 +173,19 @@ public class AccessLog implements Serializable {
                 protocol, responseCode, contentSize);
     }
 
-    public Date getDate() {
+    public GregorianCalendar getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(GregorianCalendar date) {
         this.date = date;
+    }
+
+    public Date getmDate() {
+        return mDate;
+    }
+
+    public void setmDate(Date mDate) {
+        this.mDate = mDate;
     }
 }

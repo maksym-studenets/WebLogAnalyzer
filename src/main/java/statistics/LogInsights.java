@@ -151,7 +151,7 @@ public class LogInsights {
     /*
     public JavaRDD<AccessLog> getTimeDataForIp() {
         return accessLogs
-                .mapToPair(log -> new Tuple2<>(log.getDate(), 1L))
+                .mapToPair(log -> new Tuple2<>(log.getmDate(), 1L))
                 .reduceByKey(Functions.sumReducer)
                 .filter(date -> );
     }
