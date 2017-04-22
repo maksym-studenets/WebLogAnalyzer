@@ -2,9 +2,11 @@ package statistics;
 
 import model.AccessLog;
 import model.IpAddressGeoData;
+import model.TrafficData;
 import model.TrafficInfo;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.Function2;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -12,6 +14,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import scala.Tuple2;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
@@ -44,7 +47,7 @@ public class LogInsights {
         //convertToAccessLog();
         try {
             return accessLogs.mapToPair(log -> new Tuple2<>(log.getIpAddress(), 1L))
-                    .reduceByKey(Functions.sumReducer)
+                    .reduceByKey(sumReducer)
                     .distinct()
                     .map(Tuple2::_1)
                     .take(100);
@@ -70,7 +73,7 @@ public class LogInsights {
         try {
             frequentIpAddresses =
                     accessLogs.mapToPair(log -> new Tuple2<>(log.getIpAddress(), 1L))
-                            .reduceByKey(Functions.sumReducer)
+                            .reduceByKey(sumReducer)
                             .filter(tuple -> tuple._2() > quantity)
                             .map(Tuple2::_1)
                             .take(100);
@@ -120,6 +123,25 @@ public class LogInsights {
         return ipGeoData;
     }
 
+    public ArrayList<TrafficData> getTrafficData() {
+        trafficData = accessLogs.map(AccessLog::getContentSize).cache();
+        trafficData.filter((Function<Long, Boolean>) v1 -> v1 > 0);
+        long average = trafficData.reduce(sumReducer) / trafficData.count();
+        long maximum = trafficData.max(Comparator.naturalOrder());
+        long minimum = trafficData.min(Comparator.naturalOrder());
+
+        ArrayList<TrafficData> trafficDataList = new ArrayList<>();
+        trafficDataList.add(new TrafficData("minimum", minimum));
+        trafficDataList.add(new TrafficData("average", average));
+        trafficDataList.add(new TrafficData("maximum", maximum));
+
+        return trafficDataList;
+    }
+
+    public JavaRDD<String> getLogLines() {
+        return logLines;
+    }
+
     /**
      * Computes traffic data statistics for the complete dataset of web logs.
      * Basic statistical information includes minimum, average and maximum content size
@@ -127,10 +149,11 @@ public class LogInsights {
      * @return new object of {@link TrafficInfo} class that represents computed data. It is
      * then being used to present in a easy to use form
      * */
-    public TrafficInfo getTrafficStatistics() {
+    @Deprecated
+    public TrafficInfo getTrafficStats() {
         trafficData = accessLogs.map(AccessLog::getContentSize).cache();
         trafficData.filter((Function<Long, Boolean>) v1 -> v1 > 0);
-        long average = trafficData.reduce(Functions.sumReducer) / trafficData.count();
+        long average = trafficData.reduce(sumReducer) / trafficData.count();
         long maximum = trafficData.max(Comparator.naturalOrder());
         long minimum = trafficData.min(Comparator.naturalOrder());
 
@@ -143,20 +166,9 @@ public class LogInsights {
     public List<Tuple2<Integer, Long>> getStatusCodeStatistics() {
         return accessLogs
                 .mapToPair(log -> new Tuple2<>(log.getResponseCode(), 1L))
-                .reduceByKey(Functions.sumReducer)
+                .reduceByKey(sumReducer)
                 .take(100);
     }
-
-
-    /*
-    public JavaRDD<AccessLog> getTimeDataForIp() {
-        return accessLogs
-                .mapToPair(log -> new Tuple2<>(log.getmDate(), 1L))
-                .reduceByKey(Functions.sumReducer)
-                .filter(date -> );
-    }
-    */
-
 
     public void setLogLines(JavaRDD<String> logLines) {
         this.logLines = logLines;
@@ -171,4 +183,6 @@ public class LogInsights {
     private void convertToAccessLog() {
         accessLogs = logLines.map(AccessLog::parseLog).cache();
     }
+
+    private static final Function2<Long, Long, Long> sumReducer = (a, b) -> a + b;
 }

@@ -1,16 +1,16 @@
 package model;
 
 /**
- * Created by Maksym on 04.04.2017.
+ * Represents response code data scheme
  */
-public class StatusData {
+public class ResponseCodeData {
     private int statusCode;
     private long count;
 
-    public StatusData() {
+    public ResponseCodeData() {
     }
 
-    public StatusData(int statusCode, long count) {
+    public ResponseCodeData(int statusCode, long count) {
         this.statusCode = statusCode;
         this.count = count;
     }

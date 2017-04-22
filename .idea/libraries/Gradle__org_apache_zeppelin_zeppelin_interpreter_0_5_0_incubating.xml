@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.apache.zeppelin:zeppelin-interpreter:0.5.0-incubating">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.zeppelin/zeppelin-interpreter/0.5.0-incubating/de7dff16b5060eb122596341362bfc629a060db5/zeppelin-interpreter-0.5.0-incubating.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.zeppelin/zeppelin-interpreter/0.5.0-incubating/3d9315f1c460b91d29d5f605584f61604a0c2302/zeppelin-interpreter-0.5.0-incubating-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

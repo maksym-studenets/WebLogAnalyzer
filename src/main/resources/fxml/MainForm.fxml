@@ -1,56 +1,253 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
-      prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.*?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0"
+      prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ui.Controller">
     <children>
-        <MenuBar>
+        <MenuBar id="menuBar" focusTraversable="true">
             <menus>
-                <Menu mnemonicParsing="false" text="File">
+                <Menu text="File">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Open"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Close"/>
+                        <MenuItem fx:id="openFileMenuItem" text="Open">
+                            <accelerator>
+                                <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP"
+                                                    shortcut="UP"/>
+                            </accelerator>
+                        </MenuItem>
+                        <SeparatorMenuItem/>
+                        <MenuItem text="Exit">
+                            <accelerator>
+                                <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP"
+                                                    shortcut="UP"/>
+                            </accelerator>
+                        </MenuItem>
                     </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Help">
+                <Menu text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Licenses"/>
-                        <MenuItem mnemonicParsing="false" text="About"/>
+                        <MenuItem text="About">
+                            <accelerator>
+                                <KeyCodeCombination alt="UP" code="F1" control="UP" meta="UP" shift="UP"
+                                                    shortcut="ANY"/>
+                            </accelerator>
+                        </MenuItem>
                     </items>
                 </Menu>
             </menus>
         </MenuBar>
-        <Label contentDisplay="CENTER" text="Web Log Analyzer" textAlignment="CENTER">
-            <font>
-                <Font size="24.0"/>
-            </font>
-        </Label>
-        <HBox prefHeight="100.0" prefWidth="200.0">
-            <children>
-                <ListView prefHeight="200.0" prefWidth="200.0"/>
-                <TableView prefHeight="200.0" prefWidth="200.0">
-                    <columns>
-                        <TableColumn prefWidth="75.0" text="C1"/>
-                        <TableColumn prefWidth="75.0" text="C2"/>
-                    </columns>
-                </TableView>
-                <TableView prefHeight="200.0" prefWidth="200.0">
-                    <columns>
-                        <TableColumn prefWidth="75.0" text="C1"/>
-                        <TableColumn prefWidth="75.0" text="C2"/>
-                    </columns>
-                </TableView>
-            </children>
-        </HBox>
-        <TableView prefHeight="200.0" prefWidth="200.0">
-            <columns>
-                <TableColumn prefWidth="75.0" text="C1"/>
-                <TableColumn prefWidth="75.0" text="C2"/>
-            </columns>
-        </TableView>
+        <TabPane prefHeight="468.0" prefWidth="720.0" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="General">
+                    <content>
+                        <BorderPane prefHeight="200.0" prefWidth="200.0">
+                            <left>
+                                <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                                    <children>
+                                        <Label prefHeight="25.0" prefWidth="200.0" text="Unique IP addresses"/>
+                                        <ListView fx:id="uniqueIpList" layoutY="24.0" prefHeight="198.0"
+                                                  prefWidth="200.0"/>
+                                        <Label layoutY="222.0" prefHeight="17.0" prefWidth="200.0"
+                                               text="IPs (&gt;20 matches)"/>
+                                        <ListView fx:id="frequentIpList" layoutY="239.0" prefHeight="187.0"
+                                                  prefWidth="200.0">
+                                            <padding>
+                                                <Insets bottom="10.0"/>
+                                            </padding>
+                                        </ListView>
+                                    </children>
+                                    <BorderPane.margin>
+                                        <Insets bottom="10.0" left="10.0"/>
+                                    </BorderPane.margin>
+                                </Pane>
+                            </left>
+                            <center>
+                                <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                                    <children>
+                                        <Label prefHeight="25.0" prefWidth="200.0" text="Traffic statistics"/>
+                                        <TableView fx:id="trafficDataTable" layoutY="23.0" prefHeight="200.0"
+                                                   prefWidth="200.0">
+                                            <columns>
+                                                <TableColumn fx:id="propertyColumn" prefWidth="127.0" resizable="false"
+                                                             text="Property"/>
+                                                <TableColumn fx:id="volumeColumn" prefWidth="71.0" resizable="false"
+                                                             text="Volume"/>
+                                            </columns>
+                                        </TableView>
+                                        <Label layoutY="223.0" prefHeight="17.0" prefWidth="198.0"
+                                               text="Response code statistics"/>
+                                        <TableView fx:id="responseCodeTableView" layoutY="240.0" prefHeight="185.0"
+                                                   prefWidth="200.0">
+                                            <columns>
+                                                <TableColumn fx:id="responseCodeColumn" prefWidth="119.0"
+                                                             resizable="false" text="Response Code"/>
+                                                <TableColumn fx:id="countColumn" resizable="false" text="Count"/>
+                                            </columns>
+                                            <padding>
+                                                <Insets bottom="10.0"/>
+                                            </padding>
+                                        </TableView>
+                                    </children>
+                                    <BorderPane.margin>
+                                        <Insets left="10.0"/>
+                                    </BorderPane.margin>
+                                </Pane>
+                            </center>
+                            <right>
+                                <Pane prefHeight="434.0" prefWidth="362.0" BorderPane.alignment="CENTER">
+                                    <BorderPane.margin>
+                                        <Insets bottom="10.0" left="5.0" right="10.0"/>
+                                    </BorderPane.margin>
+                                    <children>
+                                        <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" prefHeight="17.0"
+                                               prefWidth="274.0" text="Load log file to start" textAlignment="CENTER"/>
+                                        <Button fx:id="loadFileButton" layoutX="117.0" layoutY="41.0"
+                                                mnemonicParsing="false" onAction="#openFile" text="Load File"/>
+                                        <Label fx:id="logFilePathLabel" layoutY="78.0" prefHeight="17.0"
+                                               prefWidth="354.0" text="File path"/>
+                                        <TextArea fx:id="logFileTextArea" layoutX="9.0" layoutY="160.0"
+                                                  prefHeight="242.0" prefWidth="343.0"/>
+                                        <Button fx:id="processButton" layoutX="121.0" layoutY="108.0"
+                                                mnemonicParsing="false" onAction="#processLogFile" text="Process"/>
+                                    </children>
+                                    <padding>
+                                        <Insets right="20.0"/>
+                                    </padding>
+                                </Pane>
+                            </right>
+                        </BorderPane>
+                    </content>
+                </Tab>
+                <Tab text="k-means">
+                    <content>
+                        <BorderPane prefHeight="200.0" prefWidth="200.0">
+                            <center>
+                                <Pane prefHeight="301.0" prefWidth="381.0" BorderPane.alignment="CENTER">
+                                    <children>
+                                        <TableView fx:id="kMeansAllCentroidsTable" layoutY="34.0" prefHeight="303.0"
+                                                   prefWidth="381.0">
+                                            <columns>
+                                                <TableColumn fx:id="kMeansAllClusterNoColumn" prefWidth="114.0"
+                                                             text="Cluster No."/>
+                                                <TableColumn fx:id="kMeansAllCentroidsColumn" prefWidth="266.0"
+                                                             text="Centroids"/>
+                                            </columns>
+                                            <padding>
+                                                <Insets bottom="10.0"/>
+                                            </padding>
+                                        </TableView>
+                                        <Label layoutX="14.0" layoutY="14.0" text="All iterations"/>
+                                    </children>
+                                    <BorderPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0"/>
+                                    </BorderPane.margin>
+                                </Pane>
+                            </center>
+                            <right>
+                                <Pane prefHeight="327.0" prefWidth="379.0" BorderPane.alignment="CENTER">
+                                    <children>
+                                        <TableView fx:id="kMeansLastCentroidTable" layoutY="34.0" prefHeight="304.0"
+                                                   prefWidth="379.0">
+                                            <columns>
+                                                <TableColumn fx:id="kMeansLastClusterNoColumn" prefWidth="125.0"
+                                                             text="Cluster"/>
+                                                <TableColumn fx:id="kMeansLastCentroidColumn" prefWidth="253.0"
+                                                             text="Centroid"/>
+                                            </columns>
+                                        </TableView>
+                                        <Label layoutX="296.0" layoutY="6.0" text="Last iteration"/>
+                                    </children>
+                                    <BorderPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0"/>
+                                    </BorderPane.margin>
+                                </Pane>
+                            </right>
+                            <top>
+                                <Pane prefHeight="79.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+                                    <children>
+                                        <Label layoutX="14.0" layoutY="14.0" text="Clusters count"/>
+                                        <TextField fx:id="clusterCountTextField" layoutX="123.0" layoutY="10.0"/>
+                                        <Button layoutX="374.0" layoutY="40.0" mnemonicParsing="false"
+                                                onAction="#clusterKMeans" text="Cluster"/>
+                                        <Label layoutX="552.0" layoutY="14.0" text="Compute Cost"/>
+                                        <TextField fx:id="kMeansComputeText" layoutX="637.0" layoutY="10.0"/>
+                                        <TextField fx:id="iterationCountTextField" layoutX="123.0" layoutY="40.0"/>
+                                        <Label layoutX="14.0" layoutY="44.0" text="Iterations count"/>
+                                        <CheckBox fx:id="kMeansRecalculateCheckbox" layoutX="287.0" layoutY="14.0"
+                                                  mnemonicParsing="false" prefHeight="17.0" prefWidth="189.0"
+                                                  text="Recalculate similarity matrix"/>
+                                    </children>
+                                </Pane>
+                            </top>
+                        </BorderPane>
+                    </content>
+                </Tab>
+                <Tab text="Bisecting k-means">
+                    <content>
+                        <BorderPane prefHeight="200.0" prefWidth="200.0">
+                            <top>
+                                <Pane prefHeight="79.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+                                    <children>
+                                        <Label layoutX="14.0" layoutY="14.0" text="Clusters count"/>
+                                        <TextField fx:id="bisectingClusterCountText" layoutX="123.0" layoutY="10.0"/>
+                                        <Button fx:id="clusterBisectingKMeansButton" layoutX="374.0" layoutY="40.0"
+                                                mnemonicParsing="false" onAction="#clusterBisectingKMeans"
+                                                text="Cluster"/>
+                                        <Label layoutX="552.0" layoutY="14.0" text="Compute Cost"/>
+                                        <TextField fx:id="bisectingComputeCostText" layoutX="637.0" layoutY="10.0"/>
+                                        <Label layoutX="14.0" layoutY="57.0" text="All iterations"/>
+                                        <Label layoutX="717.0" layoutY="49.0" text="Last iteration"/>
+                                        <CheckBox fx:id="bisectingRecalculateCheckBox" layoutX="280.0" layoutY="14.0"
+                                                  mnemonicParsing="false" prefHeight="17.0" prefWidth="189.0"
+                                                  text="Recalculate similarity matrix"/>
+                                    </children>
+                                </Pane>
+                            </top>
+                            <center>
+                                <Pane prefHeight="309.0" prefWidth="381.0" BorderPane.alignment="CENTER">
+                                    <children>
+                                        <TableView fx:id="bisectingCentroidsTable" prefHeight="336.0" prefWidth="381.0">
+                                            <columns>
+                                                <TableColumn fx:id="clusterNumberBisectingColumn" prefWidth="107.0"
+                                                             text="Cluster No."/>
+                                                <TableColumn fx:id="centroidsBisectingColumn" prefWidth="265.0"
+                                                             text="Centroids"/>
+                                            </columns>
+                                            <padding>
+                                                <Insets bottom="10.0"/>
+                                            </padding>
+                                        </TableView>
+                                    </children>
+                                    <BorderPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0"/>
+                                    </BorderPane.margin>
+                                </Pane>
+                            </center>
+                            <right>
+                                <Pane prefHeight="327.0" prefWidth="379.0" BorderPane.alignment="CENTER">
+                                    <BorderPane.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0"/>
+                                    </BorderPane.margin>
+                                    <children>
+                                        <TableView fx:id="bisectingLastCentroidTable" prefHeight="338.0"
+                                                   prefWidth="379.0">
+                                            <columns>
+                                                <TableColumn fx:id="bisectingLastClusterNumberColumn" prefWidth="116.0"
+                                                             text="Cluster"/>
+                                                <TableColumn fx:id="bisectingLastPointColumn" prefWidth="251.0"
+                                                             text="Centroid"/>
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </Pane>
+                            </right>
+                        </BorderPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
     </children>
 </VBox>

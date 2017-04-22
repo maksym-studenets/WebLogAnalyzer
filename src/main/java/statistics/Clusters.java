@@ -3,40 +3,42 @@ package statistics;
 import main.App;
 import model.AccessLog;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.mllib.clustering.BisectingKMeans;
+import org.apache.spark.mllib.clustering.BisectingKMeansModel;
 import org.apache.spark.mllib.clustering.KMeans;
 import org.apache.spark.mllib.clustering.KMeansModel;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.Vectors;
+import org.apache.spark.rdd.RDD;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 
 /**
  * Provides realization of clustering tasks for the log data
  */
 public class Clusters {
-    private JavaRDD<AccessLog> accessLog;
     private ArrayList<AccessLog> logs;
-    //private SimilarityValue similarityVector = new SimilarityValue();
+    private JavaRDD<Vector> parsedData;
 
-    private double ipValue = 0.75;
-    private double contentSizeValue = 0.3;
-    private double endpointValue = 0.8;
-    private double dateValue = 0.15;
+    private ArrayList<Vector> kMeansCentroids;
+    //private JavaRDD<Integer> kMeansPoints;
+    private double kMeansCost;
+
+    private ArrayList<Vector> bisectingKMeansCentroids;
+    private double bisectingKMeansCost;
+
 
     public Clusters(ArrayList<AccessLog> logs) {
-        this.accessLog = App.getJavaSparkContext().parallelize(logs);
         this.logs = logs;
+        retrieveData();
     }
 
-    public void displayRdd() {
-        System.out.println(accessLog.toString());
-    }
-
-    public void calculateSimilarityVector() {
+    public void calculateSimilarityMatrix() {
         double similarity;
 
         try {
@@ -45,34 +47,35 @@ public class Clusters {
 
 
             for (int i = 0; i < logs.size(); i++) {
-                for (int j = 0; j < logs.size(); j++) {
-                    if (i == j)
-                        continue;
+                for (int j = 1; j < logs.size(); j++) {
 
                     similarity = 0;
                     AccessLog log1 = logs.get(i);
                     AccessLog log2 = logs.get(j);
 
                     if (log1.getIpAddress().equals(log2.getIpAddress())) {
+                        double ipValue = 0.75;
                         similarity += ipValue;
                     }
                     if (log1.getContentSize() == log2.getContentSize()) {
+                        double contentSizeValue = 0.3;
                         similarity += contentSizeValue;
                     }
                     if (log1.getEndpoint().equals(log2.getEndpoint())) {
+                        double endpointValue = 0.8;
                         similarity += endpointValue;
                     }
                     if ((log1.getDate().get(Calendar.HOUR) == log2.getDate().get(Calendar.HOUR) &&
                             (log1.getDate().get(Calendar.MINUTE) == log2.getDate()
                                     .get(Calendar.MINUTE)))) {
+                        double dateValue = 0.15;
                         similarity += dateValue;
                     }
 
-                    SimilarityValue similarityValue = new SimilarityValue(i, j, similarity);
-                    fileWriter.write(similarityValue.getRow1() + " " +
-                            similarityValue.getRow2() + " " + similarityValue.getValue());
-                    fileWriter.write("\n");
+                    fileWriter.write(String.valueOf(similarity));
+                    fileWriter.write(" ");
                 }
+                fileWriter.write("\n");
             }
             fileWriter.flush();
             fileWriter.close();
@@ -83,10 +86,46 @@ public class Clusters {
         }
     }
 
-    public void clusterKMeans(int clusterCount) {
+    public void clusterKMeans(int clusterCount, int iterationCount) {
+        RDD<Vector> parsedRdd = parsedData.rdd();
+        KMeansModel kMeansModel = KMeans.train(parsedRdd, clusterCount, iterationCount);
+        kMeansCentroids = new ArrayList<>(Arrays.asList(kMeansModel.clusterCenters()));
+
+        //JavaRDD<Integer> points = kMeansModel.predict(parsedData);
+        //RDD<Object> points = kMeansModel.predict(parsedRdd);
+
+        kMeansCost = kMeansModel.computeCost(parsedRdd);
+    }
+
+    public void clusterBisectingKMeans(int clusterCount) {
+        BisectingKMeans bisectingKMeans = new BisectingKMeans()
+                .setK(clusterCount);
+        BisectingKMeansModel bisectingKMeansModel = bisectingKMeans.run(parsedData);
+        bisectingKMeansCentroids = new ArrayList<>(Arrays.asList(bisectingKMeansModel
+                .clusterCenters()));
+        bisectingKMeansCost = bisectingKMeansModel.computeCost(parsedData);
+
+        /*
+        System.out.println("Cluster centers: ");
+        for (Vector center : bisectingKMeansModel.clusterCenters()) {
+            System.out.println(center);
+        }
+        */
+
+        /*
+        JavaRDD<Integer> points = bisectingKMeansModel.predict(parsedData);
+        System.out.println("Points: ");
+        System.out.println(points);
+        */
+
+        //System.out.println(" --- --- ---");
+        //System.out.println("Compute Cost: " + bisectingKMeansModel.computeCost(parsedData));
+    }
+
+    private void retrieveData() {
         String path = "D:\\Progs\\JAVA\\2017\\2\\webloganalyzer\\similarity.txt";
         JavaRDD<String> data = App.getJavaSparkContext().textFile(path);
-        JavaRDD<Vector> parsedData = data.map(s -> {
+        parsedData = data.map(s -> {
             String[] sArray = s.split(" ");
             double[] values = new double[sArray.length];
             for (int i = 0; i < sArray.length; i++) {
@@ -95,45 +134,21 @@ public class Clusters {
             return Vectors.dense(values);
         });
         parsedData.cache();
-
-        int iterationNumber = 10;
-        KMeansModel clusters = KMeans.train(parsedData.rdd(), clusterCount, iterationNumber);
-
-        System.out.println("Cluster centers: ");
-        for (Vector center : clusters.clusterCenters()) {
-            System.out.println(center);
-        }
-
-        double cost = clusters.computeCost(parsedData.rdd());
-        System.out.println("Cost: " + cost);
-
-        // Evaluate clustering by computing Within Set Sum of Squared Errors
-        double WSSSE = clusters.computeCost(parsedData.rdd());
-        System.out.println("Within Set Sum of Squared Errors = " + WSSSE);
     }
-    /*
-    @Deprecated
-    public void clusterDataKMeans(int clusterCount) {
-        SparkSession sparkSession = SparkSession
-                .builder()
-                .appName("K-Means Sample")
-                .getOrCreate();
 
-        Dataset<Row> dataset = sparkSession.read().format("libsvm").load("D:\\Progs\\JAVA\\" +
-                "2017\\2\\webloganalyzer\\src\\main\\resources\\kmeans_data.txt");
-        KMeans kMeans = new KMeans().setK(clusterCount).setSeed(1L);
-        KMeansModel kMeansModel = kMeans.fit(dataset);
-
-        double WSSSE = kMeansModel.computeCost(dataset);
-        System.out.println("Within Set Sum of Squared Errors = " + WSSSE);
-
-        Vector[] centers = kMeansModel.clusterCenters();
-        System.out.println("Cluster centers: ");
-        for (Vector center : centers) {
-            System.out.println(center);
-        }
-
-        sparkSession.stop();
+    public ArrayList<Vector> getkMeansCentroids() {
+        return kMeansCentroids;
     }
-    */
+
+    public double getkMeansCost() {
+        return kMeansCost;
+    }
+
+    public ArrayList<Vector> getBisectingKMeansCentroids() {
+        return bisectingKMeansCentroids;
+    }
+
+    public double getBisectingKMeansCost() {
+        return bisectingKMeansCost;
+    }
 }

@@ -1,8 +1,11 @@
 package model;
 
 /**
- * Represents basic Traffic Data
+ * Represents basic Traffic Data.
+ * This class is deprecated. Use {@link TrafficData} instead.
+ * @see TrafficData
  */
+@Deprecated
 public class TrafficInfo {
     private long average;
     private long maximum;
