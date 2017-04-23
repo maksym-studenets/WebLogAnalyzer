@@ -7,9 +7,6 @@ public class ResponseCodeData {
     private int statusCode;
     private long count;
 
-    public ResponseCodeData() {
-    }
-
     public ResponseCodeData(int statusCode, long count) {
         this.statusCode = statusCode;
         this.count = count;

@@ -123,11 +123,11 @@
                 </Tab>
                 <Tab text="k-means">
                     <content>
-                        <BorderPane prefHeight="200.0" prefWidth="200.0">
+                        <BorderPane prefHeight="444.0" prefWidth="800.0">
                             <center>
                                 <Pane prefHeight="301.0" prefWidth="381.0" BorderPane.alignment="CENTER">
                                     <children>
-                                        <TableView fx:id="kMeansAllCentroidsTable" layoutY="34.0" prefHeight="303.0"
+                                        <TableView fx:id="kMeansAllCentroidsTable" layoutY="26.0" prefHeight="311.0"
                                                    prefWidth="381.0">
                                             <columns>
                                                 <TableColumn fx:id="kMeansAllClusterNoColumn" prefWidth="114.0"
@@ -139,7 +139,7 @@
                                                 <Insets bottom="10.0"/>
                                             </padding>
                                         </TableView>
-                                        <Label layoutX="14.0" layoutY="14.0" text="All iterations"/>
+                                        <Label text="All iterations"/>
                                     </children>
                                     <BorderPane.margin>
                                         <Insets bottom="10.0" left="10.0" right="10.0"/>
@@ -149,7 +149,7 @@
                             <right>
                                 <Pane prefHeight="327.0" prefWidth="379.0" BorderPane.alignment="CENTER">
                                     <children>
-                                        <TableView fx:id="kMeansLastCentroidTable" layoutY="34.0" prefHeight="304.0"
+                                        <TableView fx:id="kMeansLastCentroidTable" layoutY="23.0" prefHeight="313.0"
                                                    prefWidth="379.0">
                                             <columns>
                                                 <TableColumn fx:id="kMeansLastClusterNoColumn" prefWidth="125.0"
@@ -158,7 +158,9 @@
                                                              text="Centroid"/>
                                             </columns>
                                         </TableView>
-                                        <Label layoutX="296.0" layoutY="6.0" text="Last iteration"/>
+                                        <Label layoutX="14.0" layoutY="6.0" text="Last iteration"/>
+                                        <Button fx:id="kMeansSaveButton" layoutX="324.0" layoutY="-6.0"
+                                                mnemonicParsing="false" onAction="#saveFile" text="Save"/>
                                     </children>
                                     <BorderPane.margin>
                                         <Insets bottom="10.0" left="10.0" right="10.0"/>
@@ -199,10 +201,12 @@
                                         <Label layoutX="552.0" layoutY="14.0" text="Compute Cost"/>
                                         <TextField fx:id="bisectingComputeCostText" layoutX="637.0" layoutY="10.0"/>
                                         <Label layoutX="14.0" layoutY="57.0" text="All iterations"/>
-                                        <Label layoutX="717.0" layoutY="49.0" text="Last iteration"/>
+                                        <Label layoutX="435.0" layoutY="49.0" text="Last iteration"/>
                                         <CheckBox fx:id="bisectingRecalculateCheckBox" layoutX="280.0" layoutY="14.0"
                                                   mnemonicParsing="false" prefHeight="17.0" prefWidth="189.0"
                                                   text="Recalculate similarity matrix"/>
+                                        <Button fx:id="bisectingSaveButton" layoutX="745.0" layoutY="53.0"
+                                                mnemonicParsing="false" onAction="#saveFile" text="Save"/>
                                     </children>
                                 </Pane>
                             </top>

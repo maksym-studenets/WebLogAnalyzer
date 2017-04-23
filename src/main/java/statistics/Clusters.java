@@ -14,19 +14,22 @@ import org.apache.spark.rdd.RDD;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
 
 /**
  * Provides realization of clustering tasks for the log data
  */
-public class Clusters {
+public class Clusters implements Serializable {
     private ArrayList<AccessLog> logs;
     private JavaRDD<Vector> parsedData;
+    private HashSet<Double> distinctValues = new HashSet<>();
 
+    private KMeansModel kMeansModel;
     private ArrayList<Vector> kMeansCentroids;
-    //private JavaRDD<Integer> kMeansPoints;
     private double kMeansCost;
 
     private ArrayList<Vector> bisectingKMeansCentroids;
@@ -88,12 +91,8 @@ public class Clusters {
 
     public void clusterKMeans(int clusterCount, int iterationCount) {
         RDD<Vector> parsedRdd = parsedData.rdd();
-        KMeansModel kMeansModel = KMeans.train(parsedRdd, clusterCount, iterationCount);
+        kMeansModel = KMeans.train(parsedRdd, clusterCount, iterationCount);
         kMeansCentroids = new ArrayList<>(Arrays.asList(kMeansModel.clusterCenters()));
-
-        //JavaRDD<Integer> points = kMeansModel.predict(parsedData);
-        //RDD<Object> points = kMeansModel.predict(parsedRdd);
-
         kMeansCost = kMeansModel.computeCost(parsedRdd);
     }
 
@@ -104,22 +103,6 @@ public class Clusters {
         bisectingKMeansCentroids = new ArrayList<>(Arrays.asList(bisectingKMeansModel
                 .clusterCenters()));
         bisectingKMeansCost = bisectingKMeansModel.computeCost(parsedData);
-
-        /*
-        System.out.println("Cluster centers: ");
-        for (Vector center : bisectingKMeansModel.clusterCenters()) {
-            System.out.println(center);
-        }
-        */
-
-        /*
-        JavaRDD<Integer> points = bisectingKMeansModel.predict(parsedData);
-        System.out.println("Points: ");
-        System.out.println(points);
-        */
-
-        //System.out.println(" --- --- ---");
-        //System.out.println("Compute Cost: " + bisectingKMeansModel.computeCost(parsedData));
     }
 
     private void retrieveData() {
@@ -131,9 +114,24 @@ public class Clusters {
             for (int i = 0; i < sArray.length; i++) {
                 values[i] = Double.parseDouble(sArray[i]);
             }
+            //List<Double> doubles = Doubles.asList(values);
             return Vectors.dense(values);
         });
         parsedData.cache();
+    }
+
+    /**
+     * @since 1.2
+     */
+    public JavaRDD<Vector> getParsedData() {
+        return parsedData;
+    }
+
+    /**
+     * @since 1.2
+     */
+    public KMeansModel getkMeansModel() {
+        return kMeansModel;
     }
 
     public ArrayList<Vector> getkMeansCentroids() {

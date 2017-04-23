@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement />
+  <nodes>
+    <node x="431.14741161616166" y="80.0">model.CentroidValue</node>
+    <node x="15.147411616161605" y="80.0">statistics.LogInsights</node>
+    <node x="0.0" y="190.0">main.App</node>
+    <node x="320.64741161616166" y="190.0">ui.Controller</node>
+    <node x="50.75726010101016" y="0.0">model.AccessLog</node>
+    <node x="469.8292297979798" y="0.0">model.CentroidVector</node>
+    <node x="146.14741161616163" y="80.0">statistics.Clusters</node>
+    <node x="339.64741161616166" y="0.0">model.TrafficData</node>
+    <node x="258.14741161616166" y="80.0">model.ResponseCodeData</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="ui.Controller" target="statistics.LogInsights">
+      <point x="-46.818181818181756" y="-15.0" />
+      <point x="325.3292297979799" y="170.0" />
+      <point x="70.6474116161616" y="170.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="statistics.Clusters" target="model.AccessLog">
+      <point x="0.0" y="-15.0" />
+      <point x="192.14741161616163" y="50.0" />
+      <point x="130.25726010101016" y="50.0" />
+      <point x="26.5" y="15.0" />
+    </edge>
+    <edge source="ui.Controller" target="model.CentroidValue">
+      <point x="18.727272727272748" y="-15.0" />
+      <point x="390.8746843434344" y="140.0" />
+      <point x="462.39741161616166" y="140.0" />
+      <point x="-31.25" y="15.0" />
+    </edge>
+    <edge source="ui.Controller" target="model.TrafficData">
+      <point x="9.363636363636374" y="-15.0" />
+      <point x="381.51104797979804" y="130.0" />
+      <point x="420.64741161616166" y="130.0" />
+      <point x="27.0" y="15.0" />
+    </edge>
+    <edge source="ui.Controller" target="model.ResponseCodeData">
+      <point x="0.0" y="-15.0" />
+      <point x="38.0" y="15.0" />
+    </edge>
+    <edge source="main.App" target="statistics.LogInsights">
+      <point x="0.0" y="-15.0" />
+      <point x="36.0" y="170.0" />
+      <point x="33.647411616161605" y="170.0" />
+      <point x="-37.0" y="15.0" />
+    </edge>
+    <edge source="statistics.LogInsights" target="model.AccessLog">
+      <point x="-27.75" y="-15.0" />
+      <point x="42.897411616161605" y="60.0" />
+      <point x="77.25726010101016" y="60.0" />
+      <point x="-26.5" y="15.0" />
+    </edge>
+    <edge source="ui.Controller" target="model.CentroidVector">
+      <point x="37.454545454545496" y="-15.0" />
+      <point x="409.60195707070716" y="160.0" />
+      <point x="566.6474116161617" y="160.0" />
+      <point x="566.6474116161617" y="60.0" />
+      <point x="534.8292297979798" y="60.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="model.CentroidValue" target="model.CentroidVector">
+      <point x="0.0" y="-15.0" />
+      <point x="493.64741161616166" y="60.0" />
+      <point x="491.4958964646464" y="60.0" />
+      <point x="-43.33333333333337" y="15.0" />
+    </edge>
+    <edge source="statistics.LogInsights" target="model.TrafficData">
+      <point x="27.75" y="-15.0" />
+      <point x="98.3974116161616" y="60.0" />
+      <point x="366.64741161616166" y="60.0" />
+      <point x="-27.0" y="15.0" />
+    </edge>
+    <edge source="ui.Controller" target="statistics.Clusters">
+      <point x="-18.727272727272748" y="-15.0" />
+      <point x="353.4201388888889" y="140.0" />
+      <point x="215.14741161616163" y="140.0" />
+      <point x="23.0" y="15.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.2000000000000002" x="292.40659340659323" y="157.8461538461538" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

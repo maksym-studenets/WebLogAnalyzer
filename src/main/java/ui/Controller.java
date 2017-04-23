@@ -19,6 +19,8 @@ import statistics.Clusters;
 import statistics.LogInsights;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +36,7 @@ public class Controller implements Initializable {
     private File logFile;
     private JavaSparkContext javaSparkContext;
     private LogInsights logInsights = new LogInsights();
+    private ArrayList<CentroidValue> lastVectors;
 
     @FXML
     private Label logFilePathLabel;
@@ -65,6 +68,8 @@ public class Controller implements Initializable {
     @FXML
     private CheckBox kMeansRecalculateCheckbox;
     @FXML
+    private Button kMeansSaveButton;
+    @FXML
     private TableView<CentroidVector> kMeansAllCentroidsTable;
     @FXML
     private TableColumn<CentroidVector, Integer> kMeansAllClusterNoColumn;
@@ -83,6 +88,8 @@ public class Controller implements Initializable {
     private TextField bisectingComputeCostText;
     @FXML
     private CheckBox bisectingRecalculateCheckBox;
+    @FXML
+    private Button bisectingSaveButton;
     @FXML
     private TableView<CentroidVector> bisectingCentroidsTable;
     @FXML
@@ -207,7 +214,7 @@ public class Controller implements Initializable {
 
             ArrayList<Vector> centroids = clusters.getkMeansCentroids();
             ArrayList<CentroidVector> centroidVectors = new ArrayList<>();
-            ArrayList<CentroidValue> lastVectors = new ArrayList<>();
+            lastVectors = new ArrayList<>();
             double[] centroidValues;
             for (int i = 0; i < centroids.size(); i++) {
                 centroidVectors.add(new CentroidVector(i + 1, centroids.get(i)));
@@ -227,6 +234,9 @@ public class Controller implements Initializable {
             kMeansLastCentroidTable.setItems(lastCentroids);
             kMeansLastClusterNoColumn.setCellValueFactory(new PropertyValueFactory<>("clusterNo"));
             kMeansLastCentroidColumn.setCellValueFactory(new PropertyValueFactory<>("centroid"));
+
+            // прізвище. назва тез // М. Студенеуь / Студентська наукова конференція ЧНУ ім. Ю.Ф . - Чернівці
+
         } else {
             showMissingFileDialog();
         }
@@ -288,6 +298,19 @@ public class Controller implements Initializable {
         }
     }
 
+    @FXML
+    private void saveFile(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        FileChooser fileChooser = new FileChooser();
+        FileChooser.ExtensionFilter extensionFilter = new
+                FileChooser.ExtensionFilter("Text files (*.txt)");
+        fileChooser.getExtensionFilters().add(extensionFilter);
+        File file = fileChooser.showSaveDialog(node.getScene().getWindow());
+        if (file != null) {
+            writeToFile(file);
+        }
+    }
+
     /**
      * Shows alert dialog if no file with log data was loaded
      */
@@ -297,5 +320,19 @@ public class Controller implements Initializable {
         alert.setHeaderText("No log file loaded");
         alert.setContentText("Please load the log file in the general tab to continue!");
         alert.showAndWait();
+    }
+
+    private void writeToFile(File file) {
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            for (CentroidValue value : lastVectors) {
+                fileWriter.write(value.getClusterNo() + "\t" + value.getCentroid());
+                fileWriter.write("\n");
+            }
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

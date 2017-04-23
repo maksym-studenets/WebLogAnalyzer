@@ -13,7 +13,6 @@ import statistics.LogInsights;
  * Main class of the application. Initializes JavaFX form
  */
 public class App extends Application {
-
     private static final String LOG_PATH = "D:\\Progs\\JAVA\\2017\\2\\webloganalyzer" +
             "\\src\\main\\resources\\rkc-2.log";
     private static JavaSparkContext javaSparkContext;
